@@ -5,6 +5,25 @@
         <link rel="manifest" href="manifest.json">
     </head>
     <body>
+        <h1>Image Viewer</h1>
+        <h3>Supports HEIF and other browser supported types. Click on an image to go full screen. </h3>
+        <h3>HEIF images may take a while to load - they must be decoded with JavaScript, rather than by the browser. </h3>
+        <input type="file" id="fileinput" multiple>
+
+        <style>
+            html, body {
+                margin: 0;
+                text-align: center;
+            }
+
+            img, canvas {
+                max-width: 100vw;
+                max-height: 100vh;
+                margin-bottom: 10px;
+                margin-top: 10px;
+            }
+        </style>
+
         <script src="packages/index.js"></script>
     </body>
 </html>

@@ -20,6 +20,9 @@ let config = {
 	stats: {
 		colors: true
 	},
+	node: {
+		fs: 'empty' //Needed for libheif-js - build fails otherwise. 
+	},
 	module: {
 		rules: [
 			{
