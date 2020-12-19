@@ -61,3 +61,8 @@ fileInput.addEventListener("change", async function() {
 
 
 window.decode = decode
+
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+}
