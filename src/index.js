@@ -1,5 +1,3 @@
-const decode = require('heic-decode');
-
 let output = document.createElement("div")
 output.style.backgroundColor = "#151515"
 output.id = "output"
@@ -29,7 +27,7 @@ fileInput.addEventListener("change", async function() {
 		//We'll try HEIF decode. If HEIF fails, then we will try adding directly.
 
 		try {
-			const images = await decode.all({ buffer: arr });
+			const images = await window.decode.all({ buffer: arr });
 			for (let image of images) {
 			  let obj = await image.decode();
 			  console.log(obj)
@@ -76,8 +74,4 @@ fileInput.addEventListener("change", async function() {
 //May be automatically added if the page is reloaded, etc.
 if (fileInput.files.length > 0) {
 	fileInput.dispatchEvent(new Event("change"))
-}
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
 }

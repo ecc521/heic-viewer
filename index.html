@@ -3,6 +3,9 @@
     <head>
         <title>HEIF Viewer</title>
         <link rel="manifest" href="manifest.json">
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#317EFB"/>
     </head>
     <body>
         <h1>Image Viewer</h1>
@@ -28,6 +31,12 @@
             }
         </style>
 
+        <script>
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.register('sw.js')
+            }
+        </script>
+        <script src="packages/decode.js"></script>
         <script src="packages/index.js"></script>
     </body>
 </html>

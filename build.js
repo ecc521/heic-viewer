@@ -6,6 +6,7 @@ let config = {
 	mode: "production", //Build for production
 	entry: {
 		"packages/index.js": "./src/index.js",
+		"packages/decode.js": "./src/decode.js",
 	},
 	target: "web",
 	devtool: "source-map",
@@ -21,7 +22,7 @@ let config = {
 		colors: true
 	},
 	node: {
-		fs: 'empty' //Needed for libheif-js - build fails otherwise. 
+		fs: 'empty' //Needed for libheif-js - build fails otherwise.
 	},
 	module: {
 		rules: [

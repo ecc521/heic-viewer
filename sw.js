@@ -1,7 +1,5 @@
-
 self.addEventListener('fetch', function(event) {
-	//let promise = fetch(event.request)
-	let cacheLoader = caches.open('atombohrmodels3d')
+	let cacheLoader = caches.open('heif-viewer')
 	event.respondWith((async function() {
 		let response, cache;
 		try {
@@ -23,4 +21,11 @@ self.addEventListener('fetch', function(event) {
 
 self.addEventListener("install", function() {
     self.skipWaiting()
+	caches.open("heif-viewer").then((cache) => {
+		cache.addAll([
+			"./",
+			"./packages/decode.js",
+			"./packages/index.js"
+		])
+	})
 })
