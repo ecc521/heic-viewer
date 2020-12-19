@@ -1,4 +1,4 @@
-https://ecc521.github.io/heif-viewer/
+https://ecc521.github.io/heic-viewer/
 
-# heif-viewer
-Website and PWA for viewing HEIF images. Hopefully adding native file handlers and a converter at some point. 
+# heic-viewer
+Website and PWA for viewing HEIC images. Hopefully adding native file handlers and a converter at some point.

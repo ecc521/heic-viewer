@@ -24,7 +24,7 @@ fileInput.addEventListener("change", async function() {
 
 		let elem;
 
-		//We'll try HEIF decode. If HEIF fails, then we will try adding directly.
+		//We'll try HEIC decode. If HEIC fails, then we will try adding directly.
 
 		try {
 			const images = await window.decode.all({ buffer: arr });

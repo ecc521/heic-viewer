@@ -1,5 +1,5 @@
 self.addEventListener('fetch', function(event) {
-	let cacheLoader = caches.open('heif-viewer')
+	let cacheLoader = caches.open('heic-viewer')
 	event.respondWith((async function() {
 		let response, cache;
 		try {
@@ -21,7 +21,7 @@ self.addEventListener('fetch', function(event) {
 
 self.addEventListener("install", function() {
     self.skipWaiting()
-	caches.open("heif-viewer").then((cache) => {
+	caches.open("heic-viewer").then((cache) => {
 		cache.addAll([
 			"./",
 			"./packages/decode.js",
