@@ -1,14 +1,25 @@
 const decode = require('heic-decode');
 
 let output = document.createElement("div")
-output.style.backgroundColor = "#222222"
+output.style.backgroundColor = "#151515"
+output.id = "output"
+output.innerHTML = "<p>Images will appear here. </p>"
 document.body.appendChild(output)
 
 let fileInput = document.getElementById("fileinput")
 
 fileInput.addEventListener("change", async function() {
 	while (output.firstChild) {output.firstChild.remove()}
-	fileInput.files.forEach(async(file) => {
+	let files = fileInput.files
+	for (let i=0;i<files.length;i++) {
+		let file = files[i]
+
+		let info = document.createElement("p")
+		let str = `Render of ${file.name} (${file.size} bytes - ${file.type || ""}) below: `
+		info.innerHTML = `Beginning ${str} `
+		output.appendChild(info)
+		let start = Date.now()
+
 		let blob = file.slice(0)
 		let buf = await blob.arrayBuffer()
 		let arr = new Uint8Array(buf)
@@ -33,7 +44,7 @@ fileInput.addEventListener("change", async function() {
 			  //Put in paragraph tags so it's centered.
 			  let p = document.createElement("p")
 			  p.appendChild(canvas)
-			  document.body.appendChild(p)
+			  output.appendChild(p)
 			  elem = canvas
 			}
 		}
@@ -48,6 +59,9 @@ fileInput.addEventListener("change", async function() {
 			elem = img
 		}
 
+		info.innerHTML = `Completed (${Date.now() - start}ms) ${str} `
+
+		//Toggle fullscreen on click.
 		elem.addEventListener("click", function() {
 			if (!document.fullscreenElement) {
 				elem.requestFullscreen()
@@ -56,12 +70,13 @@ fileInput.addEventListener("change", async function() {
 				document.exitFullscreen();
 			}
 		})
-	})
+	}
 })
 
-
-window.decode = decode
-
+//May be automatically added if the page is reloaded, etc.
+if (fileInput.files.length > 0) {
+	fileInput.dispatchEvent(new Event("change"))
+}
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js')
