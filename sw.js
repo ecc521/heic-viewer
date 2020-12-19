@@ -25,7 +25,8 @@ self.addEventListener("install", function() {
 		cache.addAll([
 			"./",
 			"./packages/decode.js",
-			"./packages/index.js"
+			"./packages/index.js",
+			"./packages/worker.js",
 		])
 	})
 })
