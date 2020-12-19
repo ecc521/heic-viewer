@@ -7,6 +7,8 @@ let config = {
 	entry: {
 		"packages/index.js": "./src/index.js",
 		"packages/decode.js": "./src/decode.js",
+		"packages/worker.js": "./src/worker.js",
+		"packagedsw.js": "./sw.js",
 	},
 	target: "web",
 	devtool: "source-map",

@@ -1,3 +1,16 @@
+
+function addFullscreenListener(elem) {
+	//Toggle fullscreen on click.
+	elem.addEventListener("click", function() {
+		if (!document.fullscreenElement) {
+			elem.requestFullscreen()
+		}
+		else {
+			document.exitFullscreen();
+		}
+	})
+}
+
 let output = document.createElement("div")
 output.style.backgroundColor = "#151515"
 output.id = "output"
@@ -9,65 +22,73 @@ let fileInput = document.getElementById("fileinput")
 fileInput.addEventListener("change", async function() {
 	while (output.firstChild) {output.firstChild.remove()}
 	let files = fileInput.files
+
+	let maxThreads = Math.max(1, Math.ceil(navigator.hardwareConcurrency / 2)) //Divide by two to try and mitigate againts hyperthreading. 
+	let currentProcesses = []
+
 	for (let i=0;i<files.length;i++) {
 		let file = files[i]
 
+		let fileOutputElem = document.createElement("div")
+		output.appendChild(fileOutputElem)
+
 		let info = document.createElement("p")
-		let str = `Render of ${file.name} (${file.size} bytes - ${file.type || ""}) below: `
-		info.innerHTML = `Beginning ${str} `
-		output.appendChild(info)
+		info.innerHTML = `Processing ${file.name} (${file.size} bytes)... `
+		fileOutputElem.appendChild(info)
 		let start = Date.now()
 
-		let blob = file.slice(0)
-		let buf = await blob.arrayBuffer()
-		let arr = new Uint8Array(buf)
-
-		let elem;
-
-		//We'll try HEIC decode. If HEIC fails, then we will try adding directly.
-
-		try {
-			const images = await window.decode.all({ buffer: arr });
-			for (let image of images) {
-			  let obj = await image.decode();
-			  console.log(obj)
-
-			  let canvas = document.createElement("canvas")
-			  canvas.width = obj.width
-			  canvas.height = obj.height
-			  let ctx = canvas.getContext("2d")
-			  let imageData = new ImageData(new Uint8ClampedArray(obj.data), obj.width, obj.height);
-			  console.log(imageData)
-			  ctx.putImageData(imageData, 0, 0)
-			  //Put in paragraph tags so it's centered.
-			  let p = document.createElement("p")
-			  p.appendChild(canvas)
-			  output.appendChild(p)
-			  elem = canvas
-			}
+		console.log(currentProcesses)
+		if (currentProcesses.length >= maxThreads) {
+			await Promise.race(currentProcesses) //Wait for at least one to finish.
 		}
-		catch (e) {
-			console.log(e)
+		console.log(currentProcesses)
 
-			//Hopefully it's another type of image, otherwise this won't work.
-			let url = URL.createObjectURL(blob)
-			let img = document.createElement("img")
-			img.src = url
-			output.appendChild(img)
-			elem = img
-		}
+		let promise = new Promise((resolve, reject) => {
+			//We'll try HEIC decode. If HEIC fails, then we will try adding directly.
+			let worker = new Worker("packages/worker.js")
 
-		info.innerHTML = `Completed (${Date.now() - start}ms) ${str} `
-
-		//Toggle fullscreen on click.
-		elem.addEventListener("click", function() {
-			if (!document.fullscreenElement) {
-				elem.requestFullscreen()
+			function endWorker() {
+				worker.terminate()
+				currentProcesses.splice(currentProcesses.indexOf(promise), 1)
+				resolve()
 			}
-			else {
-				document.exitFullscreen();
-			}
+
+			worker.addEventListener("message", function(message) {
+				let obj = message.data
+
+				if (obj === "Done") {return endWorker()}
+				else if (obj === "Crash") {
+					//Hopefully it's another type of image, otherwise this won't work.
+					let url = URL.createObjectURL(file)
+					let img = document.createElement("img")
+					img.src = url
+					fileOutputElem.appendChild(img)
+					elem = img
+					addFullscreenListener(elem)
+
+					info.innerHTML = `Not HEIC - Attempted to Render ${file.name} (${file.size} bytes) in ${Date.now() - start}ms `
+					return endWorker()
+				}
+
+				let canvas = document.createElement("canvas")
+				canvas.width = obj.width
+				canvas.height = obj.height
+				let ctx = canvas.getContext("2d")
+				let imageData = new ImageData(new Uint8ClampedArray(obj.data), obj.width, obj.height);
+				console.log(imageData)
+				ctx.putImageData(imageData, 0, 0)
+				//Put in paragraph tags so it's centered.
+				let p = document.createElement("p")
+				p.appendChild(canvas)
+				fileOutputElem.appendChild(p)
+				elem = canvas
+				addFullscreenListener(elem)
+				info.innerHTML = `Rendered ${file.name} (${file.size} bytes) in ${Date.now() - start}ms `
+			})
+
+			worker.postMessage(file)
 		})
+		currentProcesses.push(promise)
 	}
 })
 

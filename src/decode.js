@@ -1,1 +1,1 @@
-window.decode = require('heic-decode');
+self.decode = require('heic-decode');
