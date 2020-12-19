@@ -23,10 +23,14 @@ fileInput.addEventListener("change", async function() {
 	while (output.firstChild) {output.firstChild.remove()}
 	let files = fileInput.files
 
-	let maxThreads = Math.max(1, Math.ceil(navigator.hardwareConcurrency / 2)) //Divide by two to try and mitigate againts hyperthreading. 
+	let maxThreads = (navigator?.hardwareConcurrency || 1) / 2 //Divide by two to try and mitigate against hyperthreading. Some browsers factor it in, others don't.
 	let currentProcesses = []
 
 	for (let i=0;i<files.length;i++) {
+		if (currentProcesses.length >= maxThreads) {
+			await Promise.race(currentProcesses) //Wait for at least one to finish.
+		}
+
 		let file = files[i]
 
 		let fileOutputElem = document.createElement("div")
@@ -36,12 +40,6 @@ fileInput.addEventListener("change", async function() {
 		info.innerHTML = `Processing ${file.name} (${file.size} bytes)... `
 		fileOutputElem.appendChild(info)
 		let start = Date.now()
-
-		console.log(currentProcesses)
-		if (currentProcesses.length >= maxThreads) {
-			await Promise.race(currentProcesses) //Wait for at least one to finish.
-		}
-		console.log(currentProcesses)
 
 		let promise = new Promise((resolve, reject) => {
 			//We'll try HEIC decode. If HEIC fails, then we will try adding directly.
